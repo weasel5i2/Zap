@@ -1,0 +1,14 @@
+name: Zap
+main: net.weasel.Zap.Zap
+version: 1.0
+commands:
+  zap:
+    description: Zap the blocks!
+    usage: "Usage: /zap <block type id>"
+    aliases: zapsurface
+  zrl:
+    description: Reload the Zap plugin
+    usage: "Usage: /zrl"
+  zstat:
+    description: Shows the status of the Zap block operation
+    usage: "Usage: /zstat"
