@@ -1,6 +1,6 @@
 name: Zap
 main: net.weasel.Zap.Zap
-version: 1.0
+version: 1.2
 commands:
   zap:
     description: Zap the blocks!
