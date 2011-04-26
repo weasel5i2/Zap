@@ -6,6 +6,15 @@ commands:
     description: Zap the blocks!
     usage: "Usage: /zap <block type id>"
     aliases: zapsurface
+  zapfloor:
+    description: Zap only floor blocks!
+    usage: "Usage: /zapfloor <block type id>"
+  zapceiling:
+    description: Zap only ceiling blocks!
+    usage: "Usage: /zapceiling <block type id>"
+  zapwall:
+    description: Zap only wall blocks!
+    usage: "Usage: /zapwall <block type id>"
   zrl:
     description: Reload the Zap plugin
     usage: "Usage: /zrl"

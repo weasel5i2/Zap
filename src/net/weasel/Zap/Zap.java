@@ -22,8 +22,14 @@ public class Zap extends JavaPlugin
   public static Player initiator = null;
   public static boolean isResetting = false;
   public static Integer targetType = 0;
-  public static boolean zapSurfaceOnly = false;
   public static Integer cycles = 0;
+  public static Integer zapType = 0;
+  
+  public static Integer ZAP_ALL = 0;
+  public static Integer ZAP_FLOOR = 1;
+  public static Integer ZAP_CEILING = 2;
+  public static Integer ZAP_WALL = 3;
+  public static Integer ZAP_SURFACE = 4;
   
   public void onDisable()
   {
@@ -58,7 +64,9 @@ public class Zap extends JavaPlugin
     		return true;
     	}
     	
-	    if (pCommand.equals("zap") || pCommand.equals( "zapsurface" ) )
+	    if (pCommand.equals("zap") || pCommand.equals( "zapsurface" )
+	    || pCommand.equals( "zapfloor" ) || pCommand.equals( "zapceiling" )
+	    || pCommand.equals( "zapwall" ) )
 	    {
 	        if (args.length == 1 || args.length == 2 )
 	        {
@@ -78,9 +86,15 @@ public class Zap extends JavaPlugin
 	          if (targetBlock.getTypeId() != 0) addBlock(targetBlock.getLocation());
 	
 	          if( pCommand.equals( "zapsurface" ) ) 
-	        	  zapSurfaceOnly = true;
-	          else
-	        	  zapSurfaceOnly = false;
+	        	  zapType = ZAP_SURFACE;
+	          else if( pCommand.equals( "zapfloor" ) )
+	        	  zapType = ZAP_FLOOR;
+		      else if( pCommand.equals( "zapceiling" ) )
+		    	  zapType = ZAP_CEILING;
+		      else if( pCommand.equals( "zapwall" ) )
+		    	  zapType = ZAP_WALL;
+		      else
+	        	  zapType = ZAP_ALL;
 	          
 	          return true;
 	        }
@@ -133,20 +147,25 @@ public class Zap extends JavaPlugin
 	  }
   }
   
-  public static boolean checkForAdjacentAir(Block whichBlock)
+  public static boolean checkForAdjacentAir(Block whichBlock )
   {
-	  if( zapSurfaceOnly == false ) return true;
+	  if( zapType == ZAP_ALL ) return true;
 	  
-	  boolean retVal = false;
+	  if( zapType == ZAP_FLOOR || zapType == ZAP_SURFACE )
+		  if( whichBlock.getRelative(BlockFace.UP).getTypeId() == 0 ) return true;
 	  
-	  if( whichBlock.getRelative(BlockFace.UP).getTypeId() == 0 ) retVal = true;
-	  if( whichBlock.getRelative(BlockFace.NORTH).getTypeId() == 0 ) retVal = true;
-	  if( whichBlock.getRelative(BlockFace.EAST).getTypeId() == 0 ) retVal = true;
-	  if( whichBlock.getRelative(BlockFace.SOUTH).getTypeId() == 0 ) retVal = true;
-	  if( whichBlock.getRelative(BlockFace.WEST).getTypeId() == 0 ) retVal = true;
-	  if( whichBlock.getRelative(BlockFace.DOWN).getTypeId() == 0 ) retVal = true;
+	  if( zapType == ZAP_CEILING || zapType == ZAP_SURFACE )
+		  if( whichBlock.getRelative(BlockFace.DOWN).getTypeId() == 0 ) return true;
 
-	  return retVal;
+	  if( zapType == ZAP_WALL || zapType == ZAP_SURFACE )
+	  {
+		  if( whichBlock.getRelative(BlockFace.NORTH).getTypeId() == 0 ) return true;
+		  if( whichBlock.getRelative(BlockFace.EAST).getTypeId() == 0 ) return true;
+		  if( whichBlock.getRelative(BlockFace.SOUTH).getTypeId() == 0 ) return true;
+		  if( whichBlock.getRelative(BlockFace.WEST).getTypeId() == 0 ) return true;
+	  }
+
+	  return false;
   }
 
   public static void getAdjacentBlocks(Block whichBlock)
@@ -159,7 +178,7 @@ public class Zap extends JavaPlugin
 	    if ((targetBlock.getTypeId() == targetType) && checkForAdjacentAir(targetBlock) == true )
 	    	addBlock(targetBlock.getLocation());
     }
-
+    
     targetBlock = whichBlock.getRelative(BlockFace.DOWN);
     if( targetBlock != null )
     {
@@ -167,7 +186,7 @@ public class Zap extends JavaPlugin
 	    	addBlock(targetBlock.getLocation());
     }
 
-    targetBlock = whichBlock.getRelative(BlockFace.NORTH);
+	targetBlock = whichBlock.getRelative(BlockFace.NORTH);
     if( targetBlock != null )
     {
 	    if ((targetBlock.getTypeId() == targetType) && checkForAdjacentAir(targetBlock) == true )
