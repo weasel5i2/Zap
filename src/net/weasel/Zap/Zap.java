@@ -1,6 +1,8 @@
 package net.weasel.Zap;
 
 import java.util.ArrayList;
+import java.util.Timer;
+
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -9,14 +11,16 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitScheduler;
+// import org.bukkit.scheduler.BukkitScheduler;
+import java.util.TimerTask;
 
 public class Zap extends JavaPlugin
 {
   public static ArrayList<Location> blocks = null;
   public static Location tempBlock = null;
   public static Integer tTask = 0;
-  public static BukkitScheduler timer = null;
+  // public static BukkitScheduler timer = null;
+  public static Timer timer = null;
   public static Integer typeId = 0;
   public static Integer dataId = 0;
   public static Player initiator = null;
@@ -39,9 +43,15 @@ public class Zap extends JavaPlugin
 
   public void onEnable()
   {
+	  long delay = 0;
+	  long interval = 10;
+	  
 	  blocks = new ArrayList<Location>();
-	  timer = getServer().getScheduler();
-	  tTask = timer.scheduleSyncRepeatingTask(this, new TimerTask(this), 1, 1 );
+	  // timer = getServer().getScheduler();
+	  
+	  timer = new Timer();
+	  
+	  timer.scheduleAtFixedRate( new TimerTask() { public void run() { processBlock(); } }, delay, interval );
   }
 
   public boolean onCommand(CommandSender sender, Command command, String label, String[] args)
