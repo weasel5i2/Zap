@@ -9,15 +9,23 @@ commands:
   zapfloor:
     description: Zap only floor blocks!
     usage: "Usage: /zapfloor <block type id>"
+    aliases: zf
+  zapsurface:
+    description: Zap only adjacent surface blocks!
+    usage: "Usage: /zapsurface <block type id>"
+    aliases: zs
   zapceiling:
     description: Zap only ceiling blocks!
     usage: "Usage: /zapceiling <block type id>"
+    aliases: zc
   zapwall:
     description: Zap only wall blocks!
     usage: "Usage: /zapwall <block type id>"
+    aliases: zw
   zrl:
     description: Reload the Zap plugin
     usage: "Usage: /zrl"
+    aliases: zz
   zstat:
     description: Shows the status of the Zap block operation
     usage: "Usage: /zstat"

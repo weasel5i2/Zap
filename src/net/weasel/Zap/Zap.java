@@ -60,7 +60,7 @@ public class Zap extends JavaPlugin
 
     if ((sender instanceof Player))
     {
-    	if( pCommand.equals( "zrl" ) )
+    	if( pCommand.equals( "zrl" ) || pCommand.equals( "zr" ) )
     	{
     		cycles = 0;
   		    blocks = null;
@@ -76,7 +76,8 @@ public class Zap extends JavaPlugin
     	
 	    if (pCommand.equals("zap") || pCommand.equals( "zapsurface" )
 	    || pCommand.equals( "zapfloor" ) || pCommand.equals( "zapceiling" )
-	    || pCommand.equals( "zapwall" ) )
+	    || pCommand.equals( "zapwall" )  || pCommand.equals( "zc" )  
+	    || pCommand.equals( "zw" ) || pCommand.equals( "zz" )  || pCommand.equals( "zs" ) )
 	    {
 	        if (args.length == 1 || args.length == 2 )
 	        {
@@ -95,13 +96,13 @@ public class Zap extends JavaPlugin
 	
 	          if (targetBlock.getTypeId() != 0) addBlock(targetBlock.getLocation());
 	
-	          if( pCommand.equals( "zapsurface" ) ) 
+	          if( pCommand.equals( "zapsurface" )  || pCommand.equals( "zs" ) ) 
 	        	  zapType = ZAP_SURFACE;
-	          else if( pCommand.equals( "zapfloor" ) )
+	          else if( pCommand.equals( "zapfloor" )  || pCommand.equals( "zf" ) )
 	        	  zapType = ZAP_FLOOR;
-		      else if( pCommand.equals( "zapceiling" ) )
+		      else if( pCommand.equals( "zapceiling" )  || pCommand.equals( "zc" ) )
 		    	  zapType = ZAP_CEILING;
-		      else if( pCommand.equals( "zapwall" ) )
+		      else if( pCommand.equals( "zapwall" )  || pCommand.equals( "zw" ) )
 		    	  zapType = ZAP_WALL;
 		      else
 	        	  zapType = ZAP_ALL;
