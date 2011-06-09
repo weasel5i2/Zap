@@ -2,7 +2,6 @@ package net.weasel.Zap;
 
 import java.util.ArrayList;
 import java.util.Timer;
-
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -10,30 +9,38 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 // import org.bukkit.scheduler.BukkitScheduler;
 import java.util.TimerTask;
+import com.nijiko.permissions.PermissionHandler;
+import com.nijikokun.bukkit.Permissions.Permissions;
 
 public class Zap extends JavaPlugin
 {
-  public static ArrayList<Location> blocks = null;
-  public static Location tempBlock = null;
-  public static Integer tTask = 0;
-  // public static BukkitScheduler timer = null;
-  public static Timer timer = null;
-  public static Integer typeId = 0;
-  public static Integer dataId = 0;
-  public static Player initiator = null;
-  public static boolean isResetting = false;
-  public static Integer targetType = 0;
-  public static Integer cycles = 0;
-  public static Integer zapType = 0;
-  
-  public static Integer ZAP_ALL = 0;
-  public static Integer ZAP_FLOOR = 1;
-  public static Integer ZAP_CEILING = 2;
-  public static Integer ZAP_WALL = 3;
-  public static Integer ZAP_SURFACE = 4;
+    public static ArrayList<Location> blocks = null;
+    public static Location tempBlock = null;
+    public static Integer tTask = 0;
+    // public static BukkitScheduler timer = null;
+    public static Timer timer = null;
+    public static Integer typeId = 0;
+    public static Integer dataId = 0;
+    public static Player initiator = null;
+    public static boolean isResetting = false;
+    public static Integer targetType = 0;
+    public static Integer cycles = 0;
+    public static Integer zapType = 0;
+    
+    public static Integer ZAP_ALL = 0;
+    public static Integer ZAP_FLOOR = 1;
+    public static Integer ZAP_CEILING = 2;
+    public static Integer ZAP_WALL = 3;
+    public static Integer ZAP_SURFACE = 4;
+  	public static PermissionHandler Permissions;
+  	public static PluginManager manager = null;
+	public static String pluginName = "";
+	public static String pluginVersion = "";
   
   public void onDisable()
   {
@@ -46,12 +53,20 @@ public class Zap extends JavaPlugin
 	  long delay = 0;
 	  long interval = 10;
 	  
+	  manager = getServer().getPluginManager();
+	  pluginName = getDescription().getName();
+	  pluginVersion = getDescription().getVersion();
 	  blocks = new ArrayList<Location>();
+	  
 	  // timer = getServer().getScheduler();
 	  
 	  timer = new Timer();
 	  
+	  setupPermissions( manager );
+	  
 	  timer.scheduleAtFixedRate( new TimerTask() { public void run() { processBlock(); } }, delay, interval );
+	  
+	  logOutput( pluginName + " v" + pluginVersion + " enabled." );
   }
 
   public boolean onCommand(CommandSender sender, Command command, String label, String[] args)
@@ -60,67 +75,75 @@ public class Zap extends JavaPlugin
 
     if ((sender instanceof Player))
     {
-    	if( pCommand.equals( "zrl" ) || pCommand.equals( "zr" ) )
-    	{
-    		cycles = 0;
-  		    blocks = null;
-  		    blocks = new ArrayList<Location>();
-  		    return true;
-    	}
-    	
-    	if( pCommand.equals( "zstat" ) )
-    	{
-    		sender.sendMessage( "Size: " + blocks.size() );
-    		return true;
-    	}
-    	
-	    if (pCommand.equals("zap") || pCommand.equals( "zapsurface" )
-	    || pCommand.equals( "zapfloor" ) || pCommand.equals( "zapceiling" )
-	    || pCommand.equals( "zapwall" )  || pCommand.equals( "zc" )  
-	    || pCommand.equals( "zw" ) || pCommand.equals( "zz" )  || pCommand.equals( "zs" ) )
-	    {
-	    	if( blocks.size() > 0 )
+		if( Zap.Permissions.has( (Player)sender, "zap.zap" ) )
+		{
+	    	if( pCommand.equals( "zrl" ) || pCommand.equals( "zr" ) )
 	    	{
-	    		sender.sendMessage( "ZAP is still running, with " + blocks.size() + " blocks in the queue. Use /zz to cancel it." );
+	    		cycles = 0;
+	  		    blocks = null;
+	  		    blocks = new ArrayList<Location>();
+	  		    return true;
+	    	}
+	    	
+	    	if( pCommand.equals( "zstat" ) )
+	    	{
+	    		sender.sendMessage( "Size: " + blocks.size() );
 	    		return true;
 	    	}
 	    	
-	        if (args.length == 1 || args.length == 2 )
-	        {
-	          int tArg = Integer.parseInt(args[0]);
-	          Player player = (Player)sender;
-	          Block targetBlock = player.getTargetBlock(null, 60);
-	          
-	          targetType = targetBlock.getTypeId();
-	          initiator = player;
-	          typeId = Integer.valueOf(tArg);
-	          
-	          if( args.length == 2 )
-	        	  dataId = Integer.valueOf( args[1] );
-	          else
-	        	  dataId = 0;
-	
-	          if (targetBlock.getTypeId() != 0) addBlock(targetBlock.getLocation());
-	
-	          if( pCommand.equals( "zapsurface" )  || pCommand.equals( "zs" ) ) 
-	        	  zapType = ZAP_SURFACE;
-	          else if( pCommand.equals( "zapfloor" )  || pCommand.equals( "zf" ) )
-	        	  zapType = ZAP_FLOOR;
-		      else if( pCommand.equals( "zapceiling" )  || pCommand.equals( "zc" ) )
-		    	  zapType = ZAP_CEILING;
-		      else if( pCommand.equals( "zapwall" )  || pCommand.equals( "zw" ) )
-		    	  zapType = ZAP_WALL;
-		      else
-	        	  zapType = ZAP_ALL;
-	          
-	          return true;
-	        }
-	
-	        return false;
-	    }
+		    if (pCommand.equals("zap") || pCommand.equals( "zapsurface" )
+		    || pCommand.equals( "zapfloor" ) || pCommand.equals( "zapceiling" )
+		    || pCommand.equals( "zapwall" )  || pCommand.equals( "zc" )  
+		    || pCommand.equals( "zw" ) || pCommand.equals( "zz" )  || pCommand.equals( "zs" ) )
+		    {
+		    	if( blocks.size() > 0 )
+		    	{
+		    		sender.sendMessage( "ZAP is still running, with " + blocks.size() + " blocks in the queue. Use /zz to cancel it." );
+		    		return true;
+		    	}
+		    	
+		        if (args.length == 1 || args.length == 2 )
+		        {
+		          int tArg = Integer.parseInt(args[0]);
+		          Player player = (Player)sender;
+		          Block targetBlock = player.getTargetBlock(null, 60);
+		          
+		          targetType = targetBlock.getTypeId();
+		          initiator = player;
+		          typeId = Integer.valueOf(tArg);
+		          
+		          if( args.length == 2 )
+		        	  dataId = Integer.valueOf( args[1] );
+		          else
+		        	  dataId = 0;
+		
+		          if (targetBlock.getTypeId() != 0) addBlock(targetBlock.getLocation());
+		
+		          if( pCommand.equals( "zapsurface" )  || pCommand.equals( "zs" ) ) 
+		        	  zapType = ZAP_SURFACE;
+		          else if( pCommand.equals( "zapfloor" )  || pCommand.equals( "zf" ) )
+		        	  zapType = ZAP_FLOOR;
+			      else if( pCommand.equals( "zapceiling" )  || pCommand.equals( "zc" ) )
+			    	  zapType = ZAP_CEILING;
+			      else if( pCommand.equals( "zapwall" )  || pCommand.equals( "zw" ) )
+			    	  zapType = ZAP_WALL;
+			      else
+		        	  zapType = ZAP_ALL;
+		          
+		          return true;
+		        }
+		
+		        return false;
+		    }
+		}
+		else
+		{
+			sender.sendMessage( "Unknown console command. Type \"help\" for help." );
+			return true;
+		}
     }
 
-    return true;
+    return false;
   }
 
   public static void addBlock( Location blockLoc )
@@ -231,4 +254,27 @@ public class Zap extends JavaPlugin
 	    	addBlock(targetBlock.getLocation());
     }
   }
+  
+	private static void setupPermissions( PluginManager pm ) 
+	{
+		Plugin test = pm.getPlugin( "Permissions" );
+
+	    if( Zap.Permissions == null ) 
+	    {
+	    	if (test != null) 
+	    	{
+	    		Zap.Permissions = ((Permissions)test).getHandler();
+	    		logOutput( "Permissions system ready." );
+	    	}
+	    	else 
+	    	{
+	    		logOutput( "Permissions not detected. Let them ALL eat cake!" );
+	        }
+	    }
+	}
+  
+	public static void logOutput( String message )
+	{
+		System.out.println( "[" + pluginName + "] " + message );
+	}
 }
