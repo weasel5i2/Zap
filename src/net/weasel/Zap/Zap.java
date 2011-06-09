@@ -79,6 +79,12 @@ public class Zap extends JavaPlugin
 	    || pCommand.equals( "zapwall" )  || pCommand.equals( "zc" )  
 	    || pCommand.equals( "zw" ) || pCommand.equals( "zz" )  || pCommand.equals( "zs" ) )
 	    {
+	    	if( blocks.size() > 0 )
+	    	{
+	    		sender.sendMessage( "ZAP is still running, with " + blocks.size() + " blocks in the queue. Use /zz to cancel it." );
+	    		return true;
+	    	}
+	    	
 	        if (args.length == 1 || args.length == 2 )
 	        {
 	          int tArg = Integer.parseInt(args[0]);
